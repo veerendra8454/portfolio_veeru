@@ -219,6 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = document.getElementById('submitBtn');
     const statusResetBtn = document.getElementById('statusResetBtn');
     
+    // Web3Forms Access Key - Get your free key from https://web3forms.com
+    const WEB3FORMS_ACCESS_KEY = "54baac7e-214a-4c8f-bff2-5f03befb3e8a";
+    
     const fields = {
         name: {
             input: document.getElementById('name'),
@@ -284,17 +287,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Disable submit button
                 submitBtn.disabled = true;
 
-                // Simulate form sending (API call delay)
-                setTimeout(() => {
+                // Send form data to Web3Forms API
+                const formData = {
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    name: fields.name.input.value,
+                    email: fields.email.input.value,
+                    subject: fields.subject.input.value,
+                    message: fields.message.input.value
+                };
+
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(async (response) => {
+                    const result = await response.json();
                     formStatus.classList.remove('sending');
-                    formStatus.classList.add('success');
                     
-                    formStatus.querySelector('.status-title').textContent = "Message Sent Successfully!";
-                    formStatus.querySelector('.status-desc').textContent = "Thank you, Veerendra will get back to you as soon as possible.";
-                    
-                    // Reset the form fields
-                    contactForm.reset();
-                }, 1800);
+                    if (response.ok) {
+                        formStatus.classList.add('success');
+                        formStatus.querySelector('.status-title').textContent = "Message Sent Successfully!";
+                        formStatus.querySelector('.status-desc').textContent = "Thank you, Veerendra will get back to you as soon as possible.";
+                        // Reset the form fields
+                        contactForm.reset();
+                    } else {
+                        console.error('Web3Forms Error:', result);
+                        formStatus.classList.add('error');
+                        formStatus.querySelector('.status-title').textContent = "Submission Failed";
+                        formStatus.querySelector('.status-desc').textContent = result.message || "Something went wrong. Please check your access key and try again.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Network Error:', error);
+                    formStatus.classList.remove('sending');
+                    formStatus.classList.add('error');
+                    formStatus.querySelector('.status-title').textContent = "Error Sending Message";
+                    formStatus.querySelector('.status-desc').textContent = "Could not connect to the server. Please check your internet connection and try again.";
+                });
             }
         });
     }
@@ -302,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset status overlay to allow typing a new message
     if (statusResetBtn) {
         statusResetBtn.addEventListener('click', () => {
-            formStatus.classList.remove('active', 'success');
+            formStatus.classList.remove('active', 'success', 'error');
             submitBtn.disabled = false;
         });
     }

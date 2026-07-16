@@ -1596,6 +1596,14 @@ textarea.form-control {
     animation: scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.status-error-icon {
+    display: none;
+    font-size: 4.5rem;
+    color: var(--error);
+    margin-bottom: 24px;
+    animation: scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 .status-title {
     font-size: 1.6rem;
     font-weight: 700;
@@ -1620,6 +1628,11 @@ textarea.form-control {
 
 .form-status.success .status-success-icon,
 .form-status.success .btn-status-reset {
+    display: inline-flex;
+}
+
+.form-status.error .status-error-icon,
+.form-status.error .btn-status-reset {
     display: inline-flex;
 }
 
